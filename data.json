@@ -1,0 +1,28 @@
+{
+  "students": [
+    {
+      "name": "Alice",
+      "email": "alice@univ.edu",
+      "status": "approved"
+    }
+  ],
+  "tests": [
+    {
+      "subject": "Math",
+      "instructor": "Dr. Smith",
+      "credits": 3
+    }
+  ],
+  "gradePoints": {
+    "alice@univ.edu": [
+      {
+        "test": {
+          "subject": "Math",
+          "instructor": "Dr. Smith",
+          "credits": 3
+        },
+        "score": 95
+      }
+    ]
+  }
+}
