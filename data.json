@@ -4,6 +4,11 @@
       "name": "Alice",
       "email": "alice@univ.edu",
       "status": "approved"
+    },
+    {
+      "name": "Putra",
+      "email": "putra@univ.edu",
+      "status": "pending"
     }
   ],
   "tests": [
