@@ -1,60 +1,112 @@
 const express = require('express');
 const router = express.Router();
-const { loadData, saveData } = require('../utils/admissions');
-const { queueJob, getJobStatus } = require('../utils/jobs');
+const { admitStudent } = require('../utils/admissions');
+const Student = require('../models/studentModel');
+const { createJob, getJobStatus } = require('../utils/jobs')
+const { generateTranscript } = require('../utils/transcript')
 
-const API_KEY = "secureapikey123"; // Autentikasi API Key
-
-// Middleware untuk autentikasi API Key
-const authenticate = (req, res, next) => {
-    const apiKey = req.header('x-api-key');
-    if (apiKey !== API_KEY) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    next();
-};
-
-// Admit Student (Sync)
-router.post('/students', authenticate, (req, res) => {
+router.post('/', async (req, res) => {
+  try {
     const { name, email } = req.body;
-    if (!email.endsWith('@univ.edu')) {
-        return res.status(400).json({ error: 'Invalid email. Must end with @univ.edu' });
-    }
-    
-    const data = loadData();
-    data.students.push({ name, email, status: 'pending' });
-    saveData(data);
-    
-    res.status(201).json({ message: `Student ${name} added with status: pending.` });
-});
-
-// Approve Student (Sync)
-router.post('/students/:id/approve', authenticate, (req, res) => {
-    const data = loadData();
-    const student = data.students[parseInt(req.params.id) - 1];
-
-    if (!student || student.status !== 'pending') {
-        return res.status(400).json({ error: 'Invalid student or already approved.' });
+    if (!name || !email) {
+      return res.status(400).json({ error: "Name and email are required" });
     }
 
-    student.status = 'approved';
-    saveData(data);
+    const newStudent = await admitStudent(name, email);
+    res.status(201).json({ message: `Student ${name} added.`, student: newStudent });
 
-    res.json({ message: `Student ${student.name} approved!` });
+  } catch (error) {
+    res.status(400).json({ error: error.message }); 
+  }
 });
 
-// Get Pending Students
-router.get('/students/pending', authenticate, (req, res) => {
-    const data = loadData();
-    const pendingStudents = data.students.filter(s => s.status === 'pending');
 
-    res.json({ pendingStudents });
+router.get('/:id', async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+    if (!student || student.status === "deleted") {
+      return res.status(404).json({ error: "Student not found" });
+    }
+    res.status(200).json(student);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Generate Transcript (Async)
-router.post('/students/:id/transcript', authenticate, (req, res) => {
-    const jobId = queueJob('generate-transcript', { studentId: parseInt(req.params.id) });
-    res.json({ jobId, status: "queued" });
+
+router.get('/', async (req, res) => {
+  try {
+    const { status } = req.query;
+    const validStatus = ["pending", "admitted"];
+
+    if (status && !validStatus.includes(status)) {
+      return res.status(400).json({ error: "Invalid status query" });
+    }
+
+    const query = status ? { status } : { status: { $ne: "deleted" } };
+    const students = await Student.find(query);
+    
+    res.status(200).json(students);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+router.put('/:id/approve', async (req, res) => {
+  try {
+    const student = await Student.findByIdAndUpdate(
+      req.params.id, 
+      { status: "admitted" }, 
+      { new: true }
+    );
+
+    if (!student || student.status === "deleted") {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    res.status(200).json({ message: `Student ${student.name} approved.`, student });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/:id/transcript", async (req, res) => {
+  try {
+    const studentId = req.params.id;
+    const student = await Student.findById(studentId);
+    if (!student) return res.status(404).json({ error: "Student not found" });
+
+    
+    const jobId = createJob(async () => {
+      const gpa = await generateTranscript(studentId);
+      return { gpa };
+    });
+
+    res.status(202).json({ message: "Transcript generation in progress", jobId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const student = await Student.findByIdAndUpdate(
+      req.params.id,
+      { status: "deleted" }, 
+      { new: true }
+    );
+
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    res.status(200).json({ message: `Student ${student.name} marked as deleted.` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;

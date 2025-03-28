@@ -1,43 +1,20 @@
-const fs = require('fs');
 const { loadData, saveData } = require('./admissions');
-const { getGradePoint, getGradeLetter } = require('./grading');
+const { tests, reloadData } = require("./maps");
 
 const createTest = (subject, instructor, credits) => {
   if (credits < 1) {
-    console.log('❌ Credits must be ≥ 1.');
-    return;
+    throw new Error('❌ Credits must be ≥ 1.');
   }
+
   const data = loadData();
-  data.tests.push({ subject, instructor, credits });
+  const newTestId = data.tests.length > 0 ? data.tests[data.tests.length - 1].id + 1 : 1;
+  const newTest = { id: newTestId, subject, instructor, credits };
+
+  data.tests.push(newTest);
   saveData(data);
-  console.log(`✅ Test ${subject} created.`);
+  reloadData(); 
+
+  return newTest;
 };
 
-const enterMarks = (testIndex, studentIndex, score) => {
-  const data = loadData();
-  const test = data.tests[testIndex - 1];
-  const student = data.students[studentIndex - 1];
-
-  if (test && student) {
-    if (!data.gradePoints[student.email]) {
-      data.gradePoints[student.email] = [];
-    }
-
-    const gradePoint = getGradePoint(score);
-    const gradeLetter = getGradeLetter(score);
-
-    data.gradePoints[student.email].push({
-      test,
-      score,
-      grade: gradeLetter,
-      points: gradePoint,
-    });
-
-    saveData(data);
-    console.log(`✅ Marks updated for test ${testIndex}, student ${studentIndex}: Grade ${gradeLetter}`);
-  } else {
-    console.log('Invalid test or student.');
-  }
-};
-
-module.exports = { createTest, enterMarks };
+module.exports = { createTest };

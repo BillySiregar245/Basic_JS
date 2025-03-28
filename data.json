@@ -1,20 +1,65 @@
 {
   "students": [
     {
+      "id": 1,
       "name": "Alice",
       "email": "alice@univ.edu",
-      "status": "approved"
+      "status": "pending"
     },
     {
-      "name": "Putra",
-      "email": "putra@univ.edu",
+      "id": 2,
+      "name": "Billy",
+      "email": "billy@univ.edu",
       "status": "pending"
+    },
+    {
+      "id": 3,
+      "name": "Siregar",
+      "email": "siregar@univ.edu",
+      "status": "pending"
+    },
+    {
+      "id": 4,
+      "name": "John",
+      "email": "john@univ.edu",
+      "status": "pending",
+      "grades": []
+    },
+    {
+      "id": 5,
+      "name": "Lily",
+      "email": "lily@univ.edu",
+      "status": "pending",
+      "grades": []
+    },
+    {
+      "id": 6,
+      "name": "Miya",
+      "email": "miya@univ.edu"
+    },
+    {
+      "id": 7,
+      "name": "Alicia",
+      "email": "alicia@univ.edu"
     }
   ],
   "tests": [
     {
+      "id": 1,
       "subject": "Math",
-      "instructor": "Dr. Smith",
+      "instructor": "Dr.Mizusawa",
+      "credits": 3
+    },
+    {
+      "id": 2,
+      "subject": "Biology",
+      "instructor": "Dr.Katsuya",
+      "credits": 4
+    },
+    {
+      "id": 3,
+      "subject": "Phisics",
+      "instructor": "Dr.Brown",
       "credits": 3
     }
   ],
@@ -23,10 +68,40 @@
       {
         "test": {
           "subject": "Math",
-          "instructor": "Dr. Smith",
           "credits": 3
         },
-        "score": 95
+        "score": 85,
+        "grade": "B"
+      }
+    ],
+    "billy@univ.edu": [
+      {
+        "test": {
+          "subject": "Biology",
+          "credits": 4
+        },
+        "score": 90,
+        "grade": "A"
+      }
+    ],
+    "lily@univ.edu": [
+      {
+        "test": {
+          "subject": "Phisics",
+          "credits": 3
+        },
+        "score": 92,
+        "grade": "A"
+      }
+    ],
+    "siregar@univ.edu": [
+      {
+        "test": {
+          "subject": "Biology",
+          "credits": 4
+        },
+        "score": 92,
+        "grade": "A"
       }
     ]
   }

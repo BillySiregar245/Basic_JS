@@ -1,28 +1,18 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { getJobStatus } = require('../utils/jobs');
+const Job = require("../models/jobModel");
 
-const API_KEY = "secureapikey123"; // Autentikasi API Key
 
-// Middleware untuk autentikasi API Key
-const authenticate = (req, res, next) => {
-    const apiKey = req.header('x-api-key');
-    if (apiKey !== API_KEY) {
-        return res.status(401).json({ error: "Unauthorized" });
-    }
-    next();
-};
+router.get("/:id", async (req, res) => {
+  try {
+    const job = await Job.findOne({ id: req.params.id });
 
-// Check Job Status
-router.get('/jobs/:id', authenticate, (req, res) => {
-    const jobId = req.params.id;
-    const jobStatus = getJobStatus(jobId);
+    if (!job) return res.status(404).json({ error: "Job not found" });
 
-    if (!jobStatus) {
-        return res.status(404).json({ error: "Job not found" });
-    }
-
-    res.json(jobStatus);
+    res.status(200).json(job);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;
