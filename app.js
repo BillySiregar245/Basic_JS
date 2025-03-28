@@ -5,6 +5,8 @@ const studentsRoutes = require("./routes/students");
 const testsRoutes = require("./routes/tests");
 const jobsRoutes = require("./routes/jobs");
 const { reloadData } = require("./utils/maps");
+const correctorRoutes = require("./routes/correctors");
+const analyticsRoutes = require("./routes/analytics");
 
 dotenv.config(); 
 
@@ -33,5 +35,7 @@ mongoose
 app.use("/students", studentsRoutes);
 app.use("/tests", testsRoutes);
 app.use("/jobs", jobsRoutes);
+app.use("/correctors", correctorRoutes)
+app.use("/analytics", analyticsRoutes);
 
 module.exports = app;

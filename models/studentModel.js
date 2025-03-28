@@ -20,11 +20,16 @@ const studentSchema = new mongoose.Schema({
     enum: ["admitted", "pending", "deleted"], 
     default: "pending" 
   },
+  department: { 
+    type: String, 
+    required: true 
+  },
   grades: [
     {
+      subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
       testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" }, 
       mark: Number,
-      grade: String,
+      grade: String
     }
   ],
   gpa: { type: Number, default: 0 }

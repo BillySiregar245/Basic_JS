@@ -4,6 +4,7 @@ const testSchema = new mongoose.Schema({
   subject: { type: String, required: true },
   corrector: { type: String, required: true }, // Disimpan sebagai string
   credits: { type: Number, required: true },
+  department: { type: String, required: true },
   marks: [
     {
       studentId: { 
